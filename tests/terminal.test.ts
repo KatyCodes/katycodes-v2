@@ -64,3 +64,9 @@ test("secret commands reveal Easter eggs", () => {
 test("snake command launches the browser game", () => {
   assert.equal(runCommand("snake").game, "snake");
 });
+
+test("games command provides visible launchers for every game", () => {
+  const games = runCommand("games");
+  assert.equal(games.title, "Katy’s Arcade");
+  assert.deepEqual(games.links?.map((link) => link.href), ["#snake", "#geography"]);
+});
