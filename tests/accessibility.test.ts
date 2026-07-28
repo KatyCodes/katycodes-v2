@@ -50,6 +50,10 @@ test("launch metadata and static fallbacks are present", () => {
   const redirects = readFileSync(new URL("../public/.htaccess", import.meta.url), "utf8");
   assert.match(redirects, /ErrorDocument 404 \/404\.html/);
   assert.match(redirects, /https:\/\/katycodes\.com/);
+  assert.match(redirects, /Content-Security-Policy/);
+  assert.match(redirects, /frame-ancestors 'none'/);
+  assert.match(redirects, /Strict-Transport-Security/);
+  assert.match(redirects, /X-Content-Type-Options "nosniff"/);
 });
 
 test("terminal window controls are operable and named", () => {
