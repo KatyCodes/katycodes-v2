@@ -8,6 +8,10 @@ import { select } from "d3-selection";
 import { zoom, zoomIdentity } from "d3-zoom";
 import { feature } from "topojson-client";
 import world from "world-atlas/countries-110m.json";
+import type { Feature, FeatureCollection, Geometry } from "geojson";
+
+type CountryProperties = { name: string };
+type CountryFeature = Feature<Geometry, CountryProperties>;
 
 const history = document.querySelector<HTMLDivElement>("#history")!;
 const menu = document.querySelector<HTMLElement>("#command-menu")!;
@@ -39,9 +43,10 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, className?: stri
 }
 
 function createGeographyGame() {
-  const collection = feature(world as never, (world as any).objects.countries) as any;
-  const countries = collection.features.filter((item: any) => item.properties.name !== "Antarctica");
-  const game = new GeographyGame(countries.map((item: any) => item.properties.name));
+  const countryObject = (world as unknown as { objects: { countries: never } }).objects.countries;
+  const collection = feature(world as never, countryObject) as unknown as FeatureCollection<Geometry, CountryProperties>;
+  const countries: CountryFeature[] = collection.features.filter((item) => item.properties.name !== "Antarctica");
+  const game = new GeographyGame(countries.map((item) => item.properties.name));
   const shell = element("section", "geography-game");
   shell.setAttribute("aria-label", "Interactive geography quiz");
   const hud = element("div", "geography-hud");
@@ -83,7 +88,7 @@ function createGeographyGame() {
     score.textContent = `score: ${game.score}`;
   };
 
-  countries.forEach((country: any) => {
+  countries.forEach((country) => {
     const name = country.properties.name;
     const shape = document.createElementNS("http://www.w3.org/2000/svg", "path");
     shape.setAttribute("d", path(country) ?? "");
