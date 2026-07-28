@@ -6,6 +6,7 @@ Katy Henning's terminal-inspired portfolio, built as a lightweight static site f
 
 - Authentic interactive terminal with history, tab completion, keyboard shortcuts, typed output, and commands such as `man katy`, `uname -a`, and `git log --oneline`
 - Keyless, accessible world-map geography game ported from a 2016 collaboration with Mark Lawson
+- Browser-based Snake game modernized from Katy's original C# Windows Forms project
 - Portfolio, full résumé, downloadable PDF/DOCX, contact details, and GitHub links
 - Light and midnight themes with WCAG AA contrast, reduced-motion support, visible focus states, and screen-reader announcements
 - Responsive layout, optimized WebP project images, social preview metadata, sitemap, robots file, custom 404, and no-JavaScript fallback

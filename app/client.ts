@@ -2,6 +2,7 @@ import "./globals.css";
 import { COMPLETIONS, PRIMARY_COMMANDS, runCommand, type CommandResult } from "./terminal";
 import { KonamiDetector, ShellHistory, completeInput } from "./shell";
 import { GeographyGame } from "./geography";
+import { SnakeGame, type Direction } from "./snake";
 import { geoNaturalEarth1, geoPath } from "d3-geo";
 import { select } from "d3-selection";
 import { zoom, zoomIdentity } from "d3-zoom";
@@ -28,6 +29,7 @@ const shellHistory = new ShellHistory();
 const konamiDetector = new KonamiDetector();
 let renderVersion = 0;
 let konamiTimer = 0;
+let activeGameCleanup: (() => void) | undefined;
 document.querySelector<HTMLElement>("#year")!.textContent = String(new Date().getFullYear());
 
 function element<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string) {
@@ -133,6 +135,137 @@ function createGeographyGame() {
   });
   updateHud();
   shell.append(hud, svg);
+  return shell;
+}
+
+function createSnakeGame() {
+  const game = new SnakeGame();
+  const shell = element("section", "snake-game");
+  shell.tabIndex = 0;
+  shell.setAttribute("role", "application");
+  shell.setAttribute("aria-label", "Snake game. Use arrow keys or W A S D to steer.");
+
+  const hud = element("div", "snake-hud");
+  const score = element("strong");
+  const highScore = element("span");
+  const status = element("span", "snake-status");
+  status.setAttribute("aria-live", "polite");
+  const difficulty = element("label");
+  difficulty.textContent = "speed ";
+  const speed = element("select");
+  speed.setAttribute("aria-label", "Snake speed");
+  [["easy", "160"], ["medium", "105"], ["hard", "65"]].forEach(([label, value]) => {
+    const option = element("option");
+    option.value = value;
+    option.textContent = label;
+    speed.append(option);
+  });
+  difficulty.append(speed);
+  const action = element("button");
+  action.type = "button";
+  action.textContent = "start";
+  const restart = element("button");
+  restart.type = "button";
+  restart.textContent = "restart";
+  hud.append(score, highScore, status, difficulty, action, restart);
+
+  const canvas = element("canvas");
+  canvas.width = 720;
+  canvas.height = 480;
+  canvas.setAttribute("aria-label", "Snake game board");
+  const context = canvas.getContext("2d")!;
+  let timer = 0;
+  let best = 0;
+  try { best = Number(window.localStorage.getItem("katycodes-snake-best")) || 0; } catch { /* optional storage */ }
+
+  const draw = () => {
+    const cellWidth = canvas.width / game.width;
+    const cellHeight = canvas.height / game.height;
+    const styles = getComputedStyle(document.body);
+    context.fillStyle = "#0b1027";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.strokeStyle = "rgba(201, 246, 90, .08)";
+    context.lineWidth = 1;
+    for (let x = 1; x < game.width; x += 1) {
+      context.beginPath(); context.moveTo(x * cellWidth, 0); context.lineTo(x * cellWidth, canvas.height); context.stroke();
+    }
+    for (let y = 1; y < game.height; y += 1) {
+      context.beginPath(); context.moveTo(0, y * cellHeight); context.lineTo(canvas.width, y * cellHeight); context.stroke();
+    }
+    game.snake.forEach((cell, index) => {
+      context.fillStyle = index === 0 ? styles.getPropertyValue("--lime") || "#c9f65a" : "#7fbf4d";
+      context.fillRect(cell.x * cellWidth + 2, cell.y * cellHeight + 2, cellWidth - 4, cellHeight - 4);
+    });
+    context.fillStyle = styles.getPropertyValue("--coral") || "#ff7657";
+    context.fillRect(game.food.x * cellWidth + 3, game.food.y * cellHeight + 3, cellWidth - 6, cellHeight - 6);
+    score.textContent = `score: ${game.score}`;
+    highScore.textContent = `best: ${best}`;
+  };
+
+  const stopTimer = () => { window.clearInterval(timer); timer = 0; };
+  activeGameCleanup = stopTimer;
+  const updateStatus = () => {
+    status.textContent = game.status;
+    action.textContent = game.status === "playing" ? "pause" : game.status === "paused" ? "resume" : game.status === "over" ? "play again" : "start";
+    speed.disabled = game.status === "playing";
+  };
+  const startTimer = () => {
+    stopTimer();
+    timer = window.setInterval(() => {
+      game.tick();
+      if (game.score > best) {
+        best = game.score;
+        try { window.localStorage.setItem("katycodes-snake-best", String(best)); } catch { /* optional storage */ }
+      }
+      if (game.status === "over") stopTimer();
+      updateStatus();
+      draw();
+    }, Number(speed.value));
+  };
+  const start = () => {
+    if (game.status === "over") game.restart();
+    if (game.status === "playing") {
+      game.pause();
+      stopTimer();
+    } else {
+      game.start();
+      startTimer();
+    }
+    updateStatus();
+    draw();
+    shell.focus();
+  };
+  const steer = (direction: Direction) => {
+    game.turn(direction);
+    if (game.status === "ready") start();
+  };
+
+  const controls = element("div", "snake-controls");
+  (["up", "left", "down", "right"] as Direction[]).forEach((direction) => {
+    const button = element("button");
+    button.type = "button";
+    button.dataset.direction = direction;
+    button.setAttribute("aria-label", `Move ${direction}`);
+    button.textContent = ({ up: "↑", down: "↓", left: "←", right: "→" })[direction];
+    button.addEventListener("click", () => steer(direction));
+    controls.append(button);
+  });
+  const keyDirections: Record<string, Direction> = {
+    ArrowUp: "up", w: "up", W: "up", ArrowDown: "down", s: "down", S: "down",
+    ArrowLeft: "left", a: "left", A: "left", ArrowRight: "right", d: "right", D: "right",
+  };
+  shell.addEventListener("keydown", (event) => {
+    const direction = keyDirections[event.key];
+    if (direction) { event.preventDefault(); event.stopPropagation(); steer(direction); }
+    if (event.key === " " && !direction) { event.preventDefault(); event.stopPropagation(); start(); }
+  });
+  action.addEventListener("click", start);
+  restart.addEventListener("click", () => {
+    stopTimer(); game.restart(); updateStatus(); draw(); shell.focus();
+  });
+  updateStatus();
+  draw();
+  shell.append(hud, canvas, controls);
   return shell;
 }
 
@@ -265,6 +398,7 @@ async function render(result: CommandResult) {
   }
 
   if (result.game === "geography") article.append(createGeographyGame());
+  if (result.game === "snake") article.append(createSnakeGame());
 
   if (result.projects) {
     const label = element("h3", "collection-label");
@@ -395,6 +529,8 @@ async function render(result: CommandResult) {
 async function execute(value: string, replace = false, remember = true) {
   const command = value.trim();
   if (!command) return;
+  activeGameCleanup?.();
+  activeGameCleanup = undefined;
   if (remember) shellHistory.push(command);
   if (replace) history.replaceChildren();
   input.value = "";

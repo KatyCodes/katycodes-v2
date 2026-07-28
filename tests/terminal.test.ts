@@ -60,3 +60,7 @@ test("secret commands reveal Easter eggs", () => {
   assert.match(runCommand("coffee").lines.join(" "), /coffee/i);
   assert.match(runCommand("click").title ?? "", /clicked/i);
 });
+
+test("snake command launches the browser game", () => {
+  assert.equal(runCommand("snake").game, "snake");
+});
