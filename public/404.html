@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#171b3a" />
+    <title>404 — Katy Codes</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <style>
+      * { box-sizing: border-box; }
+      body { min-height: 100svh; margin: 0; display: grid; place-items: center; padding: 24px; background: #dce5f6; color: #171b3a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+      main { width: min(720px, 100%); overflow: hidden; border: 2px solid #171b3a; border-radius: 15px; background: #171b3a; box-shadow: 9px 9px 0 #7967e8; color: #f7f3ff; }
+      header { display: flex; align-items: center; gap: 7px; height: 40px; padding: 0 14px; border-bottom: 1px solid #3e456d; background: #262b50; }
+      header span { width: 10px; height: 10px; border-radius: 50%; background: #ff7657; }
+      header span:nth-child(2) { background: #ffe08a; } header span:nth-child(3) { background: #c9f65a; }
+      section { padding: clamp(28px, 7vw, 62px); }
+      p { line-height: 1.65; } .prompt { color: #aeb4d1; } .prompt strong { color: #c9f65a; }
+      h1 { margin: 15px 0 12px; color: #fffdf4; font: 800 clamp(34px, 8vw, 64px)/1 Inter, ui-sans-serif, system-ui, sans-serif; }
+      a { display: inline-block; margin-top: 15px; padding: 9px 14px; border: 1.5px solid #fffdf4; border-radius: 999px; background: #c9f65a; color: #171b3a; font-weight: 800; text-decoration: none; }
+      a:focus-visible { outline: 3px solid #fffdf4; outline-offset: 4px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header aria-hidden="true"><span></span><span></span><span></span></header>
+      <section>
+        <p class="prompt"><strong>katy@codes</strong>:~$ find /page</p>
+        <h1>404: page not found</h1>
+        <p>That path doesn’t exist—or it wandered off to refactor itself.</p>
+        <a href="/">cd ~/portfolio</a>
+      </section>
+    </main>
+  </body>
+</html>

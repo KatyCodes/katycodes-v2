@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Katy Henning’s playful command-line portfolio: thoughtful software, practical problem-solving, and things that click." />
+    <meta name="theme-color" content="#dce5f6" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://katycodes.com/" />
+    <meta property="og:title" content="Katy Codes — I make things click." />
+    <meta property="og:description" content="Katy Henning’s interactive command-line portfolio." />
+    <meta property="og:image" content="https://katycodes.com/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://katycodes.com/" />
+    <title>Katy Codes — I make things click.</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script type="module" src="/app/client.ts"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <main class="site-shell" id="main-content">
+      <div class="ambient ambient-one" aria-hidden="true"></div>
+      <div class="ambient ambient-two" aria-hidden="true"></div>
+
+      <section class="terminal" id="portfolio-window" aria-label="Katy's interactive portfolio terminal">
+        <header class="terminal-bar">
+          <div class="traffic-lights" aria-label="Portfolio window controls">
+            <button type="button" data-window-action="pause" aria-label="Pause portfolio window" aria-pressed="false" title="Pause window"></button>
+            <button type="button" data-window-action="minimize" aria-label="Minimize portfolio window" aria-pressed="false" title="Minimize window"></button>
+            <button type="button" data-window-action="expand" aria-label="Expand portfolio window" aria-pressed="false" title="Expand window"></button>
+          </div>
+          <p id="portfolio-window-title">katy@codes — ~/portfolio</p>
+          <span class="status" id="online-status">online</span>
+        </header>
+
+        <div class="terminal-body" id="terminal-body">
+          <div class="intro">
+            <p class="eyebrow">KATYCODES.COM / v2.0</p>
+            <h1>I make things <button class="click-trigger" id="click-trigger" type="button" aria-label="Run the hidden click command">click.</button></h1>
+            <p class="dek">Full-stack software engineer building reliable web applications, integrations, and practical AI-assisted workflows.</p>
+          </div>
+
+          <nav class="command-menu" id="command-menu" aria-label="Portfolio commands"></nav>
+
+          <noscript>
+            <section class="noscript-card" aria-labelledby="noscript-title">
+              <h2 id="noscript-title">JavaScript is off, but the important bits still work.</h2>
+              <p>Katy Henning is a full-stack software engineer building and supporting thoughtful web applications.</p>
+              <p><a href="/Katy_Henning_Resume.pdf">Download the résumé</a> · <a href="mailto:katyannhenning@gmail.com">Email Katy</a> · <a href="https://github.com/KatyCodes">Visit GitHub</a></p>
+            </section>
+          </noscript>
+
+          <section class="terminal-console" aria-label="Interactive command line">
+            <span class="try-bubble" aria-hidden="true">try it ↓</span>
+            <div class="terminal-console-bar">
+              <div class="console-controls" aria-label="Terminal window controls">
+                <button type="button" class="console-control control-pause" data-terminal-action="pause" aria-label="Pause terminal session" aria-pressed="false" title="Pause session"></button>
+                <button type="button" class="console-control control-minimize" data-terminal-action="minimize" aria-label="Minimize terminal" aria-pressed="false" title="Minimize"></button>
+                <button type="button" class="console-control control-expand" data-terminal-action="expand" aria-label="Expand terminal" aria-pressed="false" title="Expand"></button>
+              </div>
+              <b id="terminal-window-title">katycodes — bash</b>
+            </div>
+            <form class="command-line" id="command-form">
+              <label for="command"><span>katy@codes</span>:~$</label>
+              <span class="prompt-cursor" aria-hidden="true"></span>
+              <input id="command" autocomplete="off" spellcheck="false" aria-label="Enter a command" placeholder="type a command…" />
+              <button type="submit" aria-label="Run command">↵</button>
+            </form>
+            <div class="history" id="history"></div>
+            <div class="sr-only" id="terminal-announcer" aria-live="polite" aria-atomic="true"></div>
+          </section>
+        </div>
+      </section>
+
+      <footer>
+        <span>© <span id="year"></span> Katy</span>
+        <span class="footer-links"><a href="https://github.com/KatyCodes">GitHub</a><a href="https://www.linkedin.com/in/katyhenning">LinkedIn</a></span>
+        <span>made with curiosity + caffeine</span>
+      </footer>
+    </main>
+    <div class="konami-toast" id="konami-toast" role="status" aria-live="polite" hidden>
+      <span class="pixel-spark" aria-hidden="true"></span>
+      <strong>Achievement unlocked</strong>
+      <span>Katy mode: ON</span>
+    </div>
+  </body>
+</html>
