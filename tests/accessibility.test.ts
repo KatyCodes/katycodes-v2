@@ -65,3 +65,10 @@ test("portfolio window controls are operable and status motion is accessible", (
   assert.match(css, /@keyframes status-pulse/);
   assert.match(css, /prefers-reduced-motion: reduce/);
 });
+
+test("geography map exposes named zoom controls", () => {
+  const client = readFileSync(new URL("../app/client.ts", import.meta.url), "utf8");
+  assert.match(client, /"Zoom map in"/);
+  assert.match(client, /"Zoom map out"/);
+  assert.match(client, /"Reset map zoom"/);
+});

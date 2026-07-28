@@ -80,7 +80,9 @@ body.terminal-expanded { overflow: hidden; }
 .geography-hud { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding: 13px 16px; border-bottom: 1px solid #59618f; }
 .geography-hud p { margin: 0; }.geography-hud > p:first-child { color: var(--lime); font-weight: 800; }.geography-hud strong { color: #fffdf4; }.geography-feedback { flex: 1 1 100%; color: #d9def0; font-size: 12px; }
 .geography-hud button { margin-left: auto; padding: 5px 10px; border: 1px solid var(--lime); border-radius: 6px; background: transparent; color: var(--lime); cursor: pointer; }
-.geography-game svg { display: block; width: 100%; height: auto; background: #183f67; }
+.map-controls { display: flex; gap: 5px; margin-left: auto; }.map-controls button { min-width: 31px; margin: 0; }
+.geography-game svg { display: block; width: 100%; height: auto; background: #183f67; cursor: grab; touch-action: none; user-select: none; }
+.geography-game svg:active { cursor: grabbing; }
 .geography-game path { fill: #d8d0a9; stroke: #171b3a; stroke-width: .55; cursor: crosshair; transition: fill .12s ease; }
 .geography-game path:hover, .geography-game path:focus { fill: var(--lime); outline: none; }
 .geography-game path:focus { stroke: #fff; stroke-width: 2; }

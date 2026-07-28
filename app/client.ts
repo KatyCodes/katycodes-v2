@@ -3,6 +3,8 @@ import { COMPLETIONS, PRIMARY_COMMANDS, runCommand, type CommandResult } from ".
 import { KonamiDetector, ShellHistory, completeInput } from "./shell";
 import { GeographyGame } from "./geography";
 import { geoNaturalEarth1, geoPath } from "d3-geo";
+import { select } from "d3-selection";
+import { zoom, zoomIdentity } from "d3-zoom";
 import { feature } from "topojson-client";
 import world from "world-atlas/countries-110m.json";
 
@@ -49,12 +51,28 @@ function createGeographyGame() {
   restart.type = "button";
   restart.textContent = "new round";
   restart.hidden = true;
-  hud.append(prompt, score, feedback, restart);
+  const mapControls = element("div", "map-controls");
+  const zoomOut = element("button");
+  zoomOut.type = "button";
+  zoomOut.textContent = "−";
+  zoomOut.setAttribute("aria-label", "Zoom map out");
+  const zoomReset = element("button");
+  zoomReset.type = "button";
+  zoomReset.textContent = "reset";
+  zoomReset.setAttribute("aria-label", "Reset map zoom");
+  const zoomIn = element("button");
+  zoomIn.type = "button";
+  zoomIn.textContent = "+";
+  zoomIn.setAttribute("aria-label", "Zoom map in");
+  mapControls.append(zoomOut, zoomReset, zoomIn);
+  hud.append(prompt, score, mapControls, feedback, restart);
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", "0 0 800 410");
   svg.setAttribute("role", "group");
   svg.setAttribute("aria-label", "World map; choose a country");
+  const mapLayer = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  svg.append(mapLayer);
   const path = geoPath(geoNaturalEarth1().fitSize([800, 410], collection));
   let playing = true;
 
@@ -81,7 +99,7 @@ function createGeographyGame() {
         playing = false;
         feedback.textContent = `That’s ${name}. ${game.target} is highlighted. Final score: ${game.score}.`;
         shape.classList.add("is-wrong");
-        [...svg.querySelectorAll<SVGPathElement>("path")].find((item) => item.getAttribute("aria-label") === game.target)?.classList.add("is-answer");
+        [...mapLayer.querySelectorAll<SVGPathElement>("path")].find((item) => item.getAttribute("aria-label") === game.target)?.classList.add("is-answer");
         restart.hidden = false;
       }
     };
@@ -92,15 +110,25 @@ function createGeographyGame() {
         choose();
       }
     });
-    svg.append(shape);
+    mapLayer.append(shape);
   });
+
+  const mapSelection = select<SVGSVGElement, unknown>(svg);
+  const zoomBehavior = zoom<SVGSVGElement, unknown>()
+    .scaleExtent([1, 8])
+    .translateExtent([[-100, -80], [900, 490]])
+    .on("zoom", (event) => mapLayer.setAttribute("transform", event.transform.toString()));
+  mapSelection.call(zoomBehavior);
+  zoomIn.addEventListener("click", () => zoomBehavior.scaleBy(mapSelection, 1.5));
+  zoomOut.addEventListener("click", () => zoomBehavior.scaleBy(mapSelection, 1 / 1.5));
+  zoomReset.addEventListener("click", () => zoomBehavior.transform(mapSelection, zoomIdentity));
 
   restart.addEventListener("click", () => {
     game.restart();
     playing = true;
     feedback.textContent = "New round started.";
     restart.hidden = true;
-    svg.querySelectorAll("path").forEach((shape) => shape.classList.remove("is-wrong", "is-answer", "is-correct"));
+    mapLayer.querySelectorAll("path").forEach((shape) => shape.classList.remove("is-wrong", "is-answer", "is-correct"));
     updateHud();
   });
   updateHud();
