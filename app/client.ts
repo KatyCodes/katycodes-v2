@@ -1,6 +1,10 @@
 import "./globals.css";
 import { COMPLETIONS, PRIMARY_COMMANDS, runCommand, type CommandResult } from "./terminal";
 import { KonamiDetector, ShellHistory, completeInput } from "./shell";
+import { GeographyGame } from "./geography";
+import { geoNaturalEarth1, geoPath } from "d3-geo";
+import { feature } from "topojson-client";
+import world from "world-atlas/countries-110m.json";
 
 const history = document.querySelector<HTMLDivElement>("#history")!;
 const menu = document.querySelector<HTMLElement>("#command-menu")!;
@@ -28,6 +32,80 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, className?: stri
   const node = document.createElement(tag);
   if (className) node.className = className;
   return node;
+}
+
+function createGeographyGame() {
+  const collection = feature(world as never, (world as any).objects.countries) as any;
+  const countries = collection.features.filter((item: any) => item.properties.name !== "Antarctica");
+  const game = new GeographyGame(countries.map((item: any) => item.properties.name));
+  const shell = element("section", "geography-game");
+  shell.setAttribute("aria-label", "Interactive geography quiz");
+  const hud = element("div", "geography-hud");
+  const prompt = element("p");
+  const score = element("strong");
+  const feedback = element("p", "geography-feedback");
+  feedback.setAttribute("aria-live", "polite");
+  const restart = element("button");
+  restart.type = "button";
+  restart.textContent = "new round";
+  restart.hidden = true;
+  hud.append(prompt, score, feedback, restart);
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 800 410");
+  svg.setAttribute("role", "group");
+  svg.setAttribute("aria-label", "World map; choose a country");
+  const path = geoPath(geoNaturalEarth1().fitSize([800, 410], collection));
+  let playing = true;
+
+  const updateHud = () => {
+    prompt.textContent = `Find: ${game.target}`;
+    score.textContent = `score: ${game.score}`;
+  };
+
+  countries.forEach((country: any) => {
+    const name = country.properties.name;
+    const shape = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    shape.setAttribute("d", path(country) ?? "");
+    shape.setAttribute("tabindex", "0");
+    shape.setAttribute("role", "button");
+    shape.setAttribute("aria-label", name);
+    const choose = () => {
+      if (!playing) return;
+      if (game.guess(name)) {
+        feedback.textContent = `Correct—${name}! Next country loaded.`;
+        shape.classList.add("is-correct");
+        window.setTimeout(() => shape.classList.remove("is-correct"), 450);
+        updateHud();
+      } else {
+        playing = false;
+        feedback.textContent = `That’s ${name}. ${game.target} is highlighted. Final score: ${game.score}.`;
+        shape.classList.add("is-wrong");
+        [...svg.querySelectorAll<SVGPathElement>("path")].find((item) => item.getAttribute("aria-label") === game.target)?.classList.add("is-answer");
+        restart.hidden = false;
+      }
+    };
+    shape.addEventListener("click", choose);
+    shape.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        choose();
+      }
+    });
+    svg.append(shape);
+  });
+
+  restart.addEventListener("click", () => {
+    game.restart();
+    playing = true;
+    feedback.textContent = "New round started.";
+    restart.hidden = true;
+    svg.querySelectorAll("path").forEach((shape) => shape.classList.remove("is-wrong", "is-answer", "is-correct"));
+    updateHud();
+  });
+  updateHud();
+  shell.append(hud, svg);
+  return shell;
 }
 
 function pause(milliseconds: number) {
@@ -157,6 +235,8 @@ async function render(result: CommandResult) {
     article.append(paragraph);
     if (!(await typeText(paragraph, line, version))) return;
   }
+
+  if (result.game === "geography") article.append(createGeographyGame());
 
   if (result.projects) {
     const label = element("h3", "collection-label");

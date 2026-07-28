@@ -1,4 +1,4 @@
-export const COMMANDS = ["about", "projects", "resume", "contact", "help", "clear", "history", "pwd", "theme", "man katy", "uname -a", "git log --oneline", "sudo hire katy", "coffee", "click"] as const;
+export const COMMANDS = ["about", "projects", "resume", "contact", "geography", "help", "clear", "history", "pwd", "theme", "man katy", "uname -a", "git log --oneline", "sudo hire katy", "coffee", "click"] as const;
 export const PRIMARY_COMMANDS = ["about", "projects", "resume", "contact", "help"] as const;
 export const COMPLETIONS = [
   ...COMMANDS,
@@ -15,7 +15,7 @@ export const COMPLETIONS = [
 export type CommandName = (typeof COMMANDS)[number];
 
 export type CommandResult =
-  | { kind: "content"; command: string; title?: string; lines: string[]; links?: { label: string; href: string }[]; projects?: ProjectItem[]; repositories?: RepositoryItem[]; resume?: ResumeSection[]; theme?: "light" | "midnight" }
+  | { kind: "content"; command: string; title?: string; lines: string[]; links?: { label: string; href: string }[]; projects?: ProjectItem[]; repositories?: RepositoryItem[]; resume?: ResumeSection[]; theme?: "light" | "midnight"; game?: "geography" }
   | { kind: "clear"; command: "clear" };
 
 export type ProjectItem = { title: string; image: string; note: string; role: string; stack: string[]; outcome: string; href?: string };
@@ -113,7 +113,7 @@ const content: Record<Exclude<CommandName, "clear">, Omit<Extract<CommandResult,
   help: {
     title: "Available commands",
     lines: [
-      "about · projects · resume · contact · help · clear · history · pwd · theme",
+      "about · projects · resume · contact · geography · help · clear · history · pwd · theme",
       "Shell extras: man katy · uname -a · git log --oneline",
       "Aliases: whoami · open projects · cat resume · email · ls · cls",
       "Keyboard: ↑/↓ history · Tab complete · Ctrl+L clear · Ctrl+C cancel",
@@ -150,6 +150,11 @@ const content: Record<Exclude<CommandName, "clear">, Omit<Extract<CommandResult,
     title: "Let’s make something good.",
     lines: ["The quickest way to reach me is by email."],
     links: [{ label: "katyannhenning@gmail.com", href: "mailto:katyannhenning@gmail.com" }],
+  },
+  geography: {
+    title: "Geography Quiz",
+    lines: ["Click—or keyboard-select—the requested country. One miss ends the round."],
+    game: "geography",
   },
   "sudo hire katy": {
     title: "Permission granted. ✓",
